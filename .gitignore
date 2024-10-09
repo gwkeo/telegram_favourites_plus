@@ -25,5 +25,5 @@ go.work.sum
 .env
 
 # config files
-.conf
+api_key.conf
 
