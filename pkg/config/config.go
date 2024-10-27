@@ -3,6 +3,7 @@ package config
 import (
 	"encoding/json"
 	"io"
+	"log"
 	"os"
 )
 
@@ -15,7 +16,14 @@ func GetBotApi() (string, error) {
 	if ok != nil {
 		return "", ok
 	}
-	defer jsonFile.Close()
+
+	defer func() {
+		closeError := jsonFile.Close()
+		if closeError != nil {
+			log.Fatal(closeError)
+		}
+	}()
+
 	byteValue, _ := io.ReadAll(jsonFile)
 	var config Config
 
