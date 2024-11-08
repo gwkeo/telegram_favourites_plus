@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gwkeo/telegram_favourites_plus/internal/api/telegram"
 	"github.com/gwkeo/telegram_favourites_plus/internal/utils"
 	"log"
@@ -18,5 +19,5 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	println("done", resp.Result)
+	fmt.Println(resp.Result)
 }
