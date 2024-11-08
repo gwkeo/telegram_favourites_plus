@@ -1,7 +1,8 @@
 package models
 
 type Response struct {
-	Result []Result `json:"result"`
+	Ok     bool     `json:"ok"`
+	Result []Result `json:"result,omitempty"`
 }
 
 type Result struct {
@@ -11,11 +12,14 @@ type Result struct {
 
 type Message struct {
 	Id        int      `json:"message_id"`
-	Chat      Chat     `json:"from"`
-	Text      string   `json:"text"`
-	Animation struct{} `json:"animation"`
+	Chat      Chat     `json:"chat"`
+	Text      string   `json:"text,omitempty"`
+	Animation struct{} `json:"animation,omitempty"`
 }
 
 type Chat struct {
 	Id int `json:"id"`
+}
+
+type Animation struct {
 }
