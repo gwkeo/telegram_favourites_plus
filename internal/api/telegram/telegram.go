@@ -2,6 +2,7 @@ package telegram
 
 import (
 	"errors"
+	"fmt"
 	"github.com/gwkeo/telegram_favourites_plus/internal/models"
 	"github.com/gwkeo/telegram_favourites_plus/internal/utils"
 	"io"
@@ -11,7 +12,7 @@ import (
 
 const (
 	updatesResponsePath = "getUpdates"
-	timeout             = 30
+	timeout             = 2
 )
 
 type Client struct {
@@ -28,9 +29,13 @@ func (c *Client) Request() string {
 	return c.baseUrl + c.apiKey
 }
 
-func (c *Client) LastMessages() ([]byte, error) {
-	// Делает запрос getUpdates в telegram api для получения всех новых сообщений за последний период таймаута
-	requestPath := c.Request() + "/" + updatesResponsePath + "?offset=277446911&timeout=" + strconv.Itoa(timeout)
+func (c *Client) RequestUpdatesPath(offset int) string {
+	return c.Request() + "/" + updatesResponsePath + "?offset=" + strconv.Itoa(offset) + "&timeout=" + strconv.Itoa(timeout)
+}
+
+// LastMessages делает запрос getUpdates в telegram api для получения всех новых сообщений за последний период таймаута
+func (c *Client) LastMessages(offset int) ([]byte, error) {
+	requestPath := c.RequestUpdatesPath(offset)
 	resp, err := http.Get(requestPath)
 	if err != nil {
 		return nil, errors.New("error while getting updates:\n" + err.Error())
@@ -44,8 +49,9 @@ func (c *Client) LastMessages() ([]byte, error) {
 	return body, nil
 }
 
-func (c *Client) Updates() (*models.Response, error) {
-	body, err := c.LastMessages()
+func (c *Client) Updates(offset int) (*models.Response, error) {
+
+	body, err := c.LastMessages(offset)
 	if err != nil {
 		return nil, errors.New("error while getting updates:\n" + err.Error())
 	}
@@ -57,10 +63,14 @@ func (c *Client) Updates() (*models.Response, error) {
 }
 
 func (c *Client) Run() error {
+	offset := 0
 	for {
-		_, err := c.Updates()
+		messages, err := c.Updates(offset)
 		if err != nil {
 			return errors.New("error while running client:\n" + err.Error())
 		}
+		fmt.Println(messages.Ok)
+		offset = messages.Result[0].UpdateId + 1
+		fmt.Println(messages.Result[0].Message.Text, offset)
 	}
 }

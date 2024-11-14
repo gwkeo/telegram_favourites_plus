@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/gwkeo/telegram_favourites_plus/internal/api/telegram"
 	"github.com/gwkeo/telegram_favourites_plus/internal/utils"
 	"log"
@@ -15,9 +14,9 @@ func main() {
 
 	tg := telegram.Client{}
 	tg.New(apiKey, "https://api.telegram.org/bot")
-	resp, err := tg.Updates()
+	err := tg.Run()
+
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(resp.Result)
 }
