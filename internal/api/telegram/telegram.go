@@ -2,7 +2,7 @@ package telegram
 
 import (
 	"errors"
-	"fmt"
+	"github.com/gwkeo/telegram_favourites_plus/internal/handlers"
 	"github.com/gwkeo/telegram_favourites_plus/internal/models"
 	"github.com/gwkeo/telegram_favourites_plus/internal/utils"
 	"io"
@@ -11,8 +11,9 @@ import (
 )
 
 const (
-	updatesResponsePath = "getUpdates"
-	timeout             = 2
+	updatesResponsePath        = "getUpdates"
+	forwardMessageResponsePath = "forwardMessage"
+	timeout                    = 10
 )
 
 type Client struct {
@@ -31,6 +32,14 @@ func (c *Client) Request() string {
 
 func (c *Client) RequestUpdatesPath(offset int) string {
 	return c.Request() + "/" + updatesResponsePath + "?offset=" + strconv.Itoa(offset) + "&timeout=" + strconv.Itoa(timeout)
+}
+
+func (c *Client) RequestForwardMessagePath(chatId, fromChatId, messageId int) string {
+	return c.Request() +
+		"/" + forwardMessageResponsePath +
+		"?chat_id=" + strconv.Itoa(chatId) +
+		"&from_chat_id=" + strconv.Itoa(fromChatId) +
+		"&message_id=" + strconv.Itoa(messageId)
 }
 
 // LastMessages делает запрос getUpdates в telegram api для получения всех новых сообщений за последний период таймаута
@@ -62,15 +71,42 @@ func (c *Client) Updates(offset int) (*models.Response, error) {
 	return res, nil
 }
 
+func (c *Client) ForwardMessage(chatId, fromChatId, messageId int) error {
+	requestPath := c.RequestForwardMessagePath(chatId, fromChatId, messageId)
+	_, err := http.Post(requestPath, "", nil)
+	if err != nil {
+		return errors.New("error while forwarding message:\n" + err.Error())
+	}
+	return nil
+}
+
+func (c *Client) MakeRequests(requests []models.Request) error {
+	for _, v := range requests {
+		err := c.ForwardMessage(v.ForwardToChat, v.FromChat, v.Id)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (c *Client) Run() error {
+	clientRunErrorMsg := "error while running client:\n"
 	offset := 0
 	for {
 		messages, err := c.Updates(offset)
 		if err != nil {
-			return errors.New("error while running client:\n" + err.Error())
+			return errors.New(clientRunErrorMsg + err.Error())
 		}
-		fmt.Println(messages.Ok)
-		offset = messages.Result[0].UpdateId + 1
-		fmt.Println(messages.Result[0].Message.Text, offset)
+		if len(messages.Result) > 0 {
+			requests := handlers.HandleTelegramResponse(messages.Result)
+			ok := c.MakeRequests(requests)
+			if ok != nil {
+				return errors.New(clientRunErrorMsg + err.Error())
+			}
+			if messages.Result != nil && len(messages.Result) > 0 {
+				offset = messages.Result[0].UpdateId + 1
+			}
+		}
 	}
 }

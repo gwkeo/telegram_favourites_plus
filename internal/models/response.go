@@ -14,15 +14,22 @@ type Message struct {
 	Id        int       `json:"message_id"`
 	Chat      Chat      `json:"chat"`
 	Text      string    `json:"text,omitempty"`
-	Animation *struct{} `json:"animation,omitempty"`
-	Photo     *struct{} `json:"photo,omitempty"`
-	Document  *struct{} `json:"document,omitempty"`
-	Video     *struct{} `json:"video,omitempty"`
-	Voice     *struct{} `json:"voice,omitempty"`
-	VideoNote *struct{} `json:"video_note,omitempty"`
+	Animation Animation `json:"animation,omitempty"`
+	Photo     []Photo   `json:"photo,omitempty"`
+	Document  Document  `json:"document,omitempty"`
+	Video     Video     `json:"video,omitempty"`
+	Voice     Voice     `json:"voice,omitempty"`
+	VideoNote VideoNote `json:"video_note,omitempty"`
 	Caption   string    `json:"caption,omitempty"`
 }
 
 type Chat struct {
 	Id int `json:"id"`
 }
+
+type Animation struct{}
+type Photo struct{}
+type Document struct{}
+type Video struct{}
+type Voice struct{}
+type VideoNote struct{}

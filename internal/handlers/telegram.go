@@ -2,48 +2,33 @@ package handlers
 
 import (
 	"github.com/gwkeo/telegram_favourites_plus/internal/models"
-	"sync"
 )
 
-type Type int
-
-const (
-	Text Type = iota
-	Animation
-	Photo
-	Document
-	Video
-	Voice
-	VideoNote
-)
-
-func TypeOfResult(r models.Result, wg *sync.WaitGroup) Type {
-	defer wg.Done()
-	if r.Message.Text != "" {
-		return Text
-	} else if r.Message.Animation != nil {
-		return Animation
-	} else if r.Message.Photo != nil {
-		return Photo
-	} else if r.Message.Document != nil {
-		return Document
-	} else if r.Message.Voice != nil {
-		return Voice
-	} else if r.Message.Video != nil {
-		return Video
+func TypeOfResult(r models.Message) models.Type {
+	if r.Text != "" {
+		return models.TextType
+	} else if r.Animation != struct{}{} {
+		return models.AnimationType
+	} else if r.Photo != nil {
+		return models.PhotoType
+	} else if r.Document != struct{}{} {
+		return models.DocumentType
+	} else if r.Voice != struct{}{} {
+		return models.VoiceType
+	} else if r.Video != struct{}{} {
+		return models.VideoType
 	} else {
-		return VideoNote
+		return models.VideoNoteType
 	}
 }
 
-func HandleTelegramResponse(results []models.Result) {
-	wg := &sync.WaitGroup{}
+func HandleTelegramResponse(results []models.Result) []models.Request {
+	var requests []models.Request
 	for _, r := range results {
-		wg.Add(1)
-		go func() {
-			resType := TypeOfResult(r, wg)
-		}()
+		resType := TypeOfResult(r.Message)
+		req := models.ForwardMessageRequest(resType, r.Message.Chat.Id, r.Message.Chat.Id, r.Message.Id)
+		requests = append(requests, *req)
 	}
 
-	wg.Wait()
+	return requests
 }
