@@ -20,7 +20,6 @@ type Message struct {
 	Video     Video     `json:"video,omitempty"`
 	Voice     Voice     `json:"voice,omitempty"`
 	VideoNote VideoNote `json:"video_note,omitempty"`
-	Caption   string    `json:"caption,omitempty"`
 }
 
 type Chat struct {
