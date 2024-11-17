@@ -2,7 +2,6 @@ package telegram
 
 import (
 	"errors"
-	"github.com/gwkeo/telegram_favourites_plus/internal/handlers"
 	"github.com/gwkeo/telegram_favourites_plus/internal/models"
 	"github.com/gwkeo/telegram_favourites_plus/internal/utils"
 	"io"
@@ -17,21 +16,18 @@ const (
 )
 
 type Client struct {
-	apiKey  string
-	baseUrl string
-}
-
-func (c *Client) New(apiKey string, baseUrl string) {
-	c.apiKey = apiKey
-	c.baseUrl = baseUrl
+	ApiKey string
 }
 
 func (c *Client) Request() string {
-	return c.baseUrl + c.apiKey
+	return "https://api.telegram.org/bot" + c.ApiKey
 }
 
 func (c *Client) RequestUpdatesPath(offset int) string {
-	return c.Request() + "/" + updatesResponsePath + "?offset=" + strconv.Itoa(offset) + "&timeout=" + strconv.Itoa(timeout)
+	return c.Request() +
+		"/" + updatesResponsePath +
+		"?offset=" + strconv.Itoa(offset) +
+		"&timeout=" + strconv.Itoa(timeout)
 }
 
 func (c *Client) RequestForwardMessagePath(chatId, fromChatId, messageId int) string {
@@ -78,35 +74,4 @@ func (c *Client) ForwardMessage(chatId, fromChatId, messageId int) error {
 		return errors.New("error while forwarding message:\n" + err.Error())
 	}
 	return nil
-}
-
-func (c *Client) MakeRequests(requests []models.Request) error {
-	for _, v := range requests {
-		err := c.ForwardMessage(v.ForwardToChat, v.FromChat, v.Id)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func (c *Client) Run() error {
-	clientRunErrorMsg := "error while running client:\n"
-	offset := 0
-	for {
-		messages, err := c.Updates(offset)
-		if err != nil {
-			return errors.New(clientRunErrorMsg + err.Error())
-		}
-		if len(messages.Result) > 0 {
-			requests := handlers.HandleTelegramResponse(messages.Result)
-			ok := c.MakeRequests(requests)
-			if ok != nil {
-				return errors.New(clientRunErrorMsg + err.Error())
-			}
-			if messages.Result != nil && len(messages.Result) > 0 {
-				offset = messages.Result[0].UpdateId + 1
-			}
-		}
-	}
 }

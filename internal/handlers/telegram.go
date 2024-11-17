@@ -22,13 +22,10 @@ func TypeOfResult(r models.Message) models.Type {
 	}
 }
 
-func HandleTelegramResponse(results []models.Result) []models.Request {
-	var requests []models.Request
+func HandleTelegramResponse(results []models.Result, requests chan<- *models.Request) {
 	for _, r := range results {
 		resType := TypeOfResult(r.Message)
 		req := models.ForwardMessageRequest(resType, r.Message.Chat.Id, r.Message.Chat.Id, r.Message.Id)
-		requests = append(requests, *req)
+		requests <- req
 	}
-
-	return requests
 }
