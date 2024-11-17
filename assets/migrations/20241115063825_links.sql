@@ -8,7 +8,7 @@ CREATE TABLE branches (
     documentsBranchId INTEGER,
     videosBranchId INTEGER,
     voicesBranchId INTEGER,
-    videoNotesBranchId INTEGER,
+    videoNotesBranchId INTEGER
 );
 -- +goose StatementEnd
 
