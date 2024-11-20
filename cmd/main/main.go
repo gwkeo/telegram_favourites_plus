@@ -6,7 +6,7 @@ import (
 	"github.com/gwkeo/telegram_favourites_plus/internal/api/telegram"
 	"github.com/gwkeo/telegram_favourites_plus/internal/handlers"
 	"github.com/gwkeo/telegram_favourites_plus/internal/models"
-	"github.com/gwkeo/telegram_favourites_plus/internal/utils"
+	"github.com/joho/godotenv"
 	_ "github.com/mattn/go-sqlite3"
 	"log"
 	"os"
@@ -18,12 +18,12 @@ func main() {
 	if dbErr != nil {
 		log.Fatal(dbErr)
 	}
-	log.Println(db)
+	//dbModel := sqlite.BranchesModel{DB: db}
 
-	apiKey, ok := utils.Api()
-	if ok != nil {
-		log.Fatal(ok.Error())
+	if err := godotenv.Load(".env"); err != nil {
+		log.Fatal("Error loading .env file")
 	}
+	apiKey := os.Getenv("API_KEY")
 
 	tg := telegram.Client{
 		ApiKey: apiKey,
