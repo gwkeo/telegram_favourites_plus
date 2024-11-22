@@ -1,7 +1,7 @@
 -- +goose Up
 -- +goose StatementBegin
 CREATE TABLE branches (
-    forumId INTEGER PRIMARY KEY,
+    forumId INTEGER,
     adminId INTEGER,
     textsBranchId INTEGER,
     animationsBranchId INTEGER,
