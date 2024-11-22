@@ -10,6 +10,8 @@ const (
 	VideoType
 	VoiceType
 	VideoNoteType
+	NewChatParticipantType
+	BotCommandType
 )
 
 type Request struct {

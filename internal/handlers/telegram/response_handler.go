@@ -1,4 +1,4 @@
-package handlers
+package telegram
 
 import (
 	"github.com/gwkeo/telegram_favourites_plus/internal/models"
@@ -17,8 +17,12 @@ func TypeOfResult(r models.Message) models.Type {
 		return models.VoiceType
 	} else if r.Video != struct{}{} {
 		return models.VideoType
-	} else {
+	} else if r.VideoNote != struct{}{} {
 		return models.VideoNoteType
+	} else if r.Entities.Type == "bot_command" {
+		return models.BotCommandType
+	} else {
+		return models.NewChatParticipantType
 	}
 }
 
