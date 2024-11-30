@@ -7,5 +7,5 @@ import (
 
 type Repository interface {
 	Create(ctx context.Context, branch *models.Branch) error
-	Branch(ctx context.Context, forumId int) (*models.Branch, error)
+	Branch(ctx context.Context, forumId int, branchType models.Type) (*models.Branch, error)
 }
