@@ -10,6 +10,7 @@ import (
 	"github.com/gwkeo/telegram_favourites_plus/internal/models"
 	"github.com/gwkeo/telegram_favourites_plus/internal/models/telegram"
 	"github.com/gwkeo/telegram_favourites_plus/internal/utils"
+	"log"
 )
 
 type Processor struct {
@@ -39,7 +40,8 @@ func (p *Processor) Start(ctx context.Context) error {
 			default:
 				changes, err := p.fetchChanges()
 				if err != nil {
-					return
+					log.Println(err.Error())
+					continue
 				}
 
 				if len(changes) > 0 {
@@ -56,7 +58,7 @@ func (p *Processor) Start(ctx context.Context) error {
 			case events.MessageType:
 
 				if err := p.forwardMessage(ctx, p.repo, v.Message); err != nil {
-					return err
+					log.Println(err.Error())
 				}
 			case events.BotAdded:
 				branches, err := p.createInitialBranches(v.MyChatMember)
@@ -65,7 +67,7 @@ func (p *Processor) Start(ctx context.Context) error {
 				}
 				for _, br := range branches {
 					if err = p.repo.Create(ctx, &br); err != nil {
-						return err
+						log.Println(err.Error())
 					}
 				}
 			case events.Default:
