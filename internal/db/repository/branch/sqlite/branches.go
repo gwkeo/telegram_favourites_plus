@@ -44,6 +44,9 @@ func (b BranchesRepository) Branch(ctx context.Context, forumId int, branchType 
 			return nil, errors.New("Error parsing branch: " + err.Error())
 		}
 	}
+	if rows.Err() != nil {
+		return nil, errors.New("Error getting branch: " + rows.Err().Error())
+	}
 
 	return &branch, nil
 }
